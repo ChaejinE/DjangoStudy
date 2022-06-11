@@ -1,49 +1,53 @@
-<!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <title>FastCampus Django</title>
-  </head>
-  <body>
+{% extends 'base.html' %}    
+{% load custom_tags %}
+{% block content %}
     <h2>유저 리스트</h2>
     <h4>{%if msg%}{{msg}}{%endif%}</h4>
-    <table>
+    <table class="table table-primary">
       <thead>
+        <th>ID</th>
         <th>유저이름</th>
         <th>이메일</th>
         <th>가입일</th>
         <th>페이플랜</th>
       </thead>
       {% for u in users %}
-      <tr>
+      <tr class={% cycle "table-dark" "table-bordered" %}>
+        <td>{{u.id}}</td>
         <td>{{u.username}}</td>
-        <td>{{u.email}}</td>
+        <td>{{u.email|email_ma:u.id}}</td>
         <td>{{u.date_joined}}</td>
         <td>{{u.pay_plan.name}}</td>
       </tr>
       {% endfor %}
     </table>
-    <nav>
-      <ul>
+    <nav aria-label="Page navigation example">
+      <ul class="pagination">
         {% if users.has_previous %}
-        <li>
-          <a href="?p={{users.previous_page_number }}">이전으로</a>
+        <li class="page-item">
+          <a class="page-link" href="?p={{users.previous_page_number }}"
+            >이전으로</a
+          >
         </li>
         {% else %}
-        <li>
-          <a href="#">이전으로</a>
+        <li class="page-item">
+          <a class="page-link" href="#">이전으로</a>
         </li>
         {% endif %}
-        <li>
-          <a href="#">{{users.number}}/{{users.paginator.num_pages}}</a>
+        <li class="page-item">
+          <a class="page-link" href="#"
+            >{{users.number}}/{{users.paginator.num_pages}}</a
+          >
         </li>
         {% if users.has_next %}
-        <li>
-          <a href="?p={{users.next_page_number }}">다음으로</a>
+        <li class="page-item">
+          <a class="page-link" href="?p={{users.next_page_number }}"
+            >다음으로</a
+          >
         </li>
         {% else %}
-        <li>
-          <a href="#">다음으로</a>
+        <li class="page-item">
+          <a class="page-link" href="#">다음으로</a>
         </li>
         {% endif %}
       </ul>
@@ -52,5 +56,6 @@
       <a href="{% url 'index_1' %}">홈으로</a>
       <a href="{% url 'register' %}">회원가입</a>
     </p>
-  </body>
-</html>
+    {% test_tags %}
+    {% include "include_test.html" %}
+{% endblock  %}
