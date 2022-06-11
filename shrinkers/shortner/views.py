@@ -1,3 +1,4 @@
+import email
 from django.http import JsonResponse
 from django.shortcuts import redirect, render
 from django.views.decorators.csrf import csrf_exempt
@@ -7,7 +8,7 @@ from django.contrib.auth.decorators import login_required
 from django.core.paginator import Paginator
 
 from shortner.models import Users
-from shortner.forms import RegisterForm
+from shortner.forms import LoginForm, RegisterForm
 
 # Create your views here.
 
@@ -56,27 +57,34 @@ def register(request):
     return render(request, "register.html", {"form": form})
 
 def login_view(request):
+    is_ok = False
     if request.method == "POST":
-        form = AuthenticationForm(request, request.POST)
-        msg = "가입되어 있지 않거나 로그인 정보가 잘못 되었습니다."
-        print(form.is_valid())
+        form = LoginForm(request.POST)
         if form.is_valid():
-            username = form.cleaned_data.get("username")
+            email = form.cleaned_data.get("email")
             raw_password = form.cleaned_data.get("password")
-            user = authenticate(username=username, password=raw_password)
-            if user is not None:
-                msg = "로그인 성공"
-                login(request, user)
-        
-        return render(request, "login.html", {"form": form, "msg": msg})
-
+            remember_me = form.cleaned_data.get("remember_me")
+            msg = "올바른 User ID와 Password를 입력하세요." 
+            try:
+                user = Users.objects.get(email=email)
+            except Users.DoesNotExist:
+                pass
+            else:
+                if user.check_password(raw_password):
+                    msg=None
+                    login(request, user)
+                    is_ok = True
+                    request.session["remember_me"] = remember_me
+            
     else:
-        form = AuthenticationForm()
-        return render(request, "login.html", {"form": form})
-        
+        msg = None
+        form = LoginForm()
+
+    return render(request, "login.html", {"form": form, "msg": msg, "is_ok": is_ok})
+
 def logout_view(request):
     logout(request)
-    return redirect("index_1")
+    return redirect("login")
 
 @login_required
 def list_view(request):

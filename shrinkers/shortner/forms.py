@@ -17,3 +17,9 @@ class RegisterForm(UserCreationForm):
             "password1",
             "password2",
         )
+
+class LoginForm(forms.Form):
+    email = forms.CharField(max_length=100, required=True, widget=forms.TextInput(attrs={"class": "form-control", "placeholder": "이메일"}))
+    password = forms.CharField(max_length=30, required=True, widget=forms.PasswordInput(attrs={"class": "form-control", "placeholder": "패스워드"}))
+    remeber_me = forms.BooleanField(widget=forms.CheckboxInput(attrs={"class": "custom-control-input", "id": "_loginRemeberMe"}),
+                                    required=False, disabled=False)
